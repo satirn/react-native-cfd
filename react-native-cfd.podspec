@@ -22,6 +22,9 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => ["\"" + __dir__ + "/ios/lib\"", "\"" + __dir__ + "/ios/cfd-js/include\""]
   }
+  s.xcconfig = {
+    'HEADER_SEARCH_PATHS' => ["\"${PODS_ROOT}/react-native-cfd/ios/lib\"", "\"${PODS_ROOT}/react-native-cfd/ios/cfd-js/include\""]
+  }
 
   s.library = 'c++'
 end
