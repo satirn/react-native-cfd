@@ -13,8 +13,8 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "10.0" }
   s.source       = { :git => "https://github.com/atomicfinance/react-native-cfd.git", :tag => "#{s.version}" }
 
-  s.source_files = ["ios/*.{h,hpp,cpp,m,mm,swift}", "ios/cfd-js/src/**/*.{h,cpp}", "ios/cfd-js/include/**/*.{h}"]
-  s.vendored_libraries = "ios/lib/libcfd.a", "ios/lib/libcfdcore.a", "ios/lib/libcfd.a", "ios/lib/libunivalue.a", "ios/lib/libwally.a"
+  s.source_files = ["ios/*.{h,hpp,cpp,m,mm,swift}", "ios/cfd-js/src/**/*.{h,cpp}", "ios/cfd-js/include/**/*.{h}", "ios/lib/**/*.{h}"]
+  s.vendored_libraries = "ios/lib/libcfd.a", "ios/lib/libcfdcore.a", "ios/lib/libunivalue.a", "ios/lib/libwally.a"
   s.private_header_files = ["ios/lib/**/*.{h}", "ios/**/*.hpp", "ios/cfd-js/**/*.h"]
   
   s.dependency "React-Core"
