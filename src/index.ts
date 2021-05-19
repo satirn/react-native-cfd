@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable indent */
-import { NativeModules } from 'react-native';
+import { NativeModules } from "react-native";
 const { Cfd } = NativeModules;
 
 /**
@@ -1257,10 +1257,10 @@ export interface ElementsDecodeRawTransactionTxIn {
  */
 export interface ElementsDecodeRawTransactionTxOut {
   value?: bigint;
-  'value-minimum?': bigint;
-  'value-maximum?': bigint;
-  'ct-exponent?': number;
-  'ct-bits?': number;
+  "value-minimum?": bigint;
+  "value-maximum?": bigint;
+  "ct-exponent?": number;
+  "ct-bits?": number;
   surjectionproof?: string;
   valuecommitment?: string;
   asset?: string;
@@ -3075,11 +3075,15 @@ export interface XpubData {
   hex: string;
 }
 
+const parseBigInt = function (_: any, value: any) {
+  return typeof value == "bigint" ? value.toString() : value;
+};
+
 async function handleCall<T1, T2>(
   func: (arg: string) => Promise<string>,
   request: T1
 ): Promise<T2> {
-  return JSON.parse(await func(JSON.stringify(request)));
+  return JSON.parse(await func(JSON.stringify(request, parseBigInt)));
 }
 
 export function CreateRawTransaction(
