@@ -2,13 +2,14 @@
 /**
  * @file cfdcore_descriptor.h
  *
- * @brief Output Descriptor関連クラス定義
+ * @brief The Output Descriptor related class definition.
  *
  */
 #ifndef CFD_CORE_INCLUDE_CFDCORE_CFDCORE_DESCRIPTOR_H_
 #define CFD_CORE_INCLUDE_CFDCORE_CFDCORE_DESCRIPTOR_H_
 
 #include <cstddef>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -19,6 +20,8 @@
 #include "cfdcore/cfdcore_common.h"
 #include "cfdcore/cfdcore_hdwallet.h"
 #include "cfdcore/cfdcore_key.h"
+#include "cfdcore/cfdcore_schnorrsig.h"
+#include "cfdcore/cfdcore_taproot.h"
 #include "cfdcore/cfdcore_transaction_common.h"
 
 namespace cfd {
@@ -28,7 +31,7 @@ namespace core {
 constexpr const char* const kArgumentBaseExtkey = "base";
 
 /**
- * @brief DescriptorNode の種別定義.
+ * @brief DescriptorNode type definition.
  */
 enum DescriptorNodeType {
   kDescriptorTypeNull,    //!< null
@@ -38,7 +41,7 @@ enum DescriptorNodeType {
 };
 
 /**
- * @brief DescriptorNode のScript種別定義.
+ * @brief Script type definition of DescriptorNode.
  */
 enum DescriptorScriptType {
   kDescriptorScriptNull,         //!< null
@@ -53,20 +56,22 @@ enum DescriptorScriptType {
   kDescriptorScriptAddr,         //!< address
   kDescriptorScriptRaw,          //!< raw script
   kDescriptorScriptMiniscript,   //!< miniscript
+  kDescriptorScriptTaproot,      //!< taproot
 };
 
 /**
- * @brief DescriptorNode のKey種別定義.
+ * @brief Key type definition of DescriptorNode.
  */
 enum DescriptorKeyType {
   kDescriptorKeyNull,       //!< null
   kDescriptorKeyPublic,     //!< pubkey
   kDescriptorKeyBip32,      //!< bip32 extpubkey
   kDescriptorKeyBip32Priv,  //!< bip32 extprivkey
+  kDescriptorKeySchnorr,    //!< schnorr (xonly)
 };
 
 /**
- * @brief key型descriptorの情報クラスです.
+ * @brief Information class of key type descriptor.
  */
 class CFD_CORE_EXPORT DescriptorKeyInfo {
  public:
@@ -106,14 +111,23 @@ class CFD_CORE_EXPORT DescriptorKeyInfo {
       const Pubkey& pubkey, const std::string parent_key_information = "");
   /**
    * @brief constructor.
+   * @param[in] schnorr_pubkey          pubkey
+   * @param[in] parent_key_information  parent key info.
+   */
+  explicit DescriptorKeyInfo(
+      const SchnorrPubkey& schnorr_pubkey,
+      const std::string parent_key_information = "");
+  /**
+   * @brief constructor.
    * @param[in] privkey     privkey
-   * @param[in] wif         WIF output flag.
+   * @param[in] use_wif_parameter   WIF output flag.
+   *   using net_type and is_compressed.
    * @param[in] net_type    Mainnet or Testnet
    * @param[in] is_compressed  compressed pubkey flag.
    * @param[in] parent_key_information  parent key info.
    */
   explicit DescriptorKeyInfo(
-      const Privkey& privkey, bool wif = true,
+      const Privkey& privkey, bool use_wif_parameter = false,
       NetType net_type = NetType::kMainnet, bool is_compressed = true,
       const std::string parent_key_information = "");
   /**
@@ -154,6 +168,11 @@ class CFD_CORE_EXPORT DescriptorKeyInfo {
    */
   Pubkey GetPubkey() const;
   /**
+   * @brief getting schnorr pubkey.
+   * @return pubkey
+   */
+  SchnorrPubkey GetSchnorrPubkey() const;
+  /**
    * @brief getting privkey.
    * @return privkey
    */
@@ -182,6 +201,12 @@ class CFD_CORE_EXPORT DescriptorKeyInfo {
    */
   bool HasPrivkey() const;
   /**
+   * @brief exist schnorr pubkey.
+   * @retval true  exist
+   * @retval false not exist
+   */
+  bool HasSchnorrPubkey() const;
+  /**
    * @brief getting ext-privkey.
    * @details need ext-privkey exists.
    * @return ext-privkey
@@ -205,18 +230,19 @@ class CFD_CORE_EXPORT DescriptorKeyInfo {
   std::string ToString() const;
 
  private:
-  DescriptorKeyType key_type_;  //!< node key type
-  Pubkey pubkey_;               //!< pubkey
-  Privkey privkey_;             //!< privkey
-  ExtPrivkey extprivkey_;       //!< ext privkey
-  ExtPubkey extpubkey_;         //!< ext pubkey
-  std::string parent_info_;     //!< parent info
-  std::string path_;            //!< bip32 path
-  std::string key_string_;      //!< key string
+  DescriptorKeyType key_type_;    //!< node key type
+  SchnorrPubkey schnorr_pubkey_;  //!< schnorr pubkey
+  Pubkey pubkey_;                 //!< pubkey
+  Privkey privkey_;               //!< privkey
+  ExtPrivkey extprivkey_;         //!< ext privkey
+  ExtPubkey extpubkey_;           //!< ext pubkey
+  std::string parent_info_;       //!< parent info
+  std::string path_;              //!< bip32 path
+  std::string key_string_;        //!< key string
 };
 
 /**
- * @brief key型descriptorの参照クラスです.
+ * @brief It is a reference class of key type descriptor.
  */
 class CFD_CORE_EXPORT DescriptorKeyReference {
  public:
@@ -229,6 +255,11 @@ class CFD_CORE_EXPORT DescriptorKeyReference {
    * @param[in] pubkey      pubkey
    */
   explicit DescriptorKeyReference(const Pubkey& pubkey);
+  /**
+   * @brief constructor.
+   * @param[in] pubkey      schnorr pubkey
+   */
+  explicit DescriptorKeyReference(const SchnorrPubkey& pubkey);
   /**
    * @brief constructor.
    * @param[in] ext_privkey   ext privkey
@@ -268,6 +299,11 @@ class CFD_CORE_EXPORT DescriptorKeyReference {
    */
   Pubkey GetPubkey() const;
   /**
+   * @brief getting schnorr pubkey.
+   * @return pubkey
+   */
+  SchnorrPubkey GetSchnorrPubkey() const;
+  /**
    * @brief getting argument.
    * @return argument
    */
@@ -284,6 +320,12 @@ class CFD_CORE_EXPORT DescriptorKeyReference {
    * @retval false not exist
    */
   bool HasExtPubkey() const;
+  /**
+   * @brief exist schnorr pubkey.
+   * @retval true  exist
+   * @retval false not exist
+   */
+  bool HasSchnorrPubkey() const;
   /**
    * @brief getting ext-privkey.
    * @details need ext-privkey exists.
@@ -308,16 +350,17 @@ class CFD_CORE_EXPORT DescriptorKeyReference {
   DescriptorKeyType GetKeyType() const;
 
  private:
-  DescriptorKeyType key_type_;  //!< node key type
-  Pubkey pubkey_;               //!< pubkey
-  ExtPrivkey extprivkey_;       //!< ext privkey
-  ExtPubkey extpubkey_;         //!< ext pubkey
-  KeyData key_data_;            //!< key data
-  std::string argument_;        //!< argument
+  DescriptorKeyType key_type_;    //!< node key type
+  SchnorrPubkey schnorr_pubkey_;  //!< schnorr pubkey
+  Pubkey pubkey_;                 //!< pubkey
+  ExtPrivkey extprivkey_;         //!< ext privkey
+  ExtPubkey extpubkey_;           //!< ext pubkey
+  KeyData key_data_;              //!< key data
+  std::string argument_;          //!< argument
 };
 
 /**
- * @brief Script型descriptorの参照クラスです.
+ * @brief Script type descriptor is a reference class.
  */
 class CFD_CORE_EXPORT DescriptorScriptReference {
  public:
@@ -367,6 +410,19 @@ class CFD_CORE_EXPORT DescriptorScriptReference {
    */
   explicit DescriptorScriptReference(
       const Address& address_script,
+      const std::vector<AddressFormatData>& address_prefixes);
+  /**
+   * @brief constructor.
+   * @param[in] locking_script    locking script
+   * @param[in] script_type       script type
+   * @param[in] key_list          key(pubkey, extprivkey, extpubkey) list
+   * @param[in] script_tree       taproot script tree
+   * @param[in] address_prefixes  address prefix list
+   */
+  explicit DescriptorScriptReference(
+      const Script& locking_script, DescriptorScriptType script_type,
+      const std::vector<DescriptorKeyReference>& key_list,
+      const TaprootScriptTree& script_tree,
       const std::vector<AddressFormatData>& address_prefixes);
   /**
    * @brief copy constructor.
@@ -467,6 +523,20 @@ class CFD_CORE_EXPORT DescriptorScriptReference {
    * @return key list
    */
   std::vector<DescriptorKeyReference> GetKeyList() const;
+
+  // taproot api
+  /**
+   * @brief exist taproot script tree.
+   * @retval true  exist
+   * @retval false not exist
+   */
+  bool HasScriptTree() const;
+  /**
+   * @brief getting taproot script tree.
+   * @return taproot script tree
+   */
+  TaprootScriptTree GetScriptTree() const;
+
   /**
    * @brief getting script type.
    * @return script type
@@ -480,6 +550,7 @@ class CFD_CORE_EXPORT DescriptorScriptReference {
   Script redeem_script_;              //!< redeem script
   Address address_script_;            //!< address script data
   uint32_t req_num_;                  //!< multisig require signature number
+  TaprootScriptTree script_tree_;     //!< taproot script tree
   //! child script
   std::shared_ptr<DescriptorScriptReference> child_script_ = nullptr;
   std::vector<DescriptorKeyReference> keys_;      //!< key list
@@ -487,7 +558,7 @@ class CFD_CORE_EXPORT DescriptorScriptReference {
 };
 
 /**
- * @brief Descriptor用Node定義クラス
+ * @brief Node definition class for Descriptor.
  */
 class CFD_CORE_EXPORT DescriptorNode {
  public:
@@ -533,21 +604,25 @@ class CFD_CORE_EXPORT DescriptorNode {
   /**
    * @brief get reference object.
    * @param[in] array_argument  argument
+   * @param[in] parent          parent object
    * @return reference object
    */
   DescriptorScriptReference GetReference(
-      std::vector<std::string>* array_argument) const;
+      std::vector<std::string>* array_argument,
+      const DescriptorNode* parent = nullptr) const;
 
   /**
    * @brief get reference object list.
    * @param[in] array_argument  argument
+   * @param[in] parent          parent object
    * @return reference object list
    */
   std::vector<DescriptorScriptReference> GetReferences(
-      std::vector<std::string>* array_argument) const;
+      std::vector<std::string>* array_argument,
+      const DescriptorNode* parent = nullptr) const;
 
   /**
-   * @brief argumentに必要な数を取得する。
+   * @brief Get the number required for argument.
    * @return argument number.
    */
   uint32_t GetNeedArgumentNum() const;
@@ -560,12 +635,12 @@ class CFD_CORE_EXPORT DescriptorNode {
   std::string ToString(bool append_checksum = true) const;
 
   /**
-   * @brief DescriptorNodeの種別を取得する。
+   * @brief Get the type of DescriptorNode.
    * @return DescriptorNodeType
    */
   DescriptorNodeType GetNodeType() const { return node_type_; }
   /**
-   * @brief DescriptorNodeのScript種別を取得する。
+   * @brief Get the Script type of DescriptorNode.
    * @return DescriptorScriptType
    */
   DescriptorScriptType GetScriptType() const { return script_type_; }
@@ -584,6 +659,20 @@ class CFD_CORE_EXPORT DescriptorNode {
    */
   Pubkey GetPubkey(std::vector<std::string>* array_argument) const;
   /**
+   * @brief get schnorr pubkey.
+   * @param[in] array_argument  argument array.
+   * @return schnorr pubkey
+   */
+  SchnorrPubkey GetSchnorrPubkey(
+      std::vector<std::string>* array_argument) const;
+  /**
+   * @brief get script tree.
+   * @param[in] array_argument  argument array.
+   * @return TapBranch
+   */
+  TaprootScriptTree GetScriptTree(
+      std::vector<std::string>* array_argument) const;
+  /**
    * @brief get key reference object.
    * @param[in] array_argument  argument
    * @return key reference object list
@@ -592,21 +681,23 @@ class CFD_CORE_EXPORT DescriptorNode {
       std::vector<std::string>* array_argument) const;
 
  private:
-  std::string name_;                              //!< node name
-  std::string value_;                             //!< node value
-  std::string key_info_;                          //!< key information
-  bool is_uncompressed_key_ = false;              //!< exist uncompressed key
-  std::string base_extkey_;                       //!< extkey base
-  std::string tweak_sum_;                         //!< extpubkey tweak sum
-  uint32_t number_ = 0;                           //!< number value
-  std::vector<DescriptorNode> child_node_;        //!< child nodes
-  std::string checksum_;                          //!< checksum
-  uint32_t depth_ = 0;                            //!< depth
-  uint32_t need_arg_num_ = 0;                     //!< need argument num
-  DescriptorNodeType node_type_;                  //!< node type
-  DescriptorScriptType script_type_;              //!< node script type
-  DescriptorKeyType key_type_;                    //!< node key type
-  std::vector<AddressFormatData> addr_prefixes_;  //!< address prefixes
+  std::string name_;                        //!< node name
+  std::string value_;                       //!< node value
+  std::string key_info_;                    //!< key information
+  bool is_uncompressed_key_ = false;        //!< exist uncompressed key
+  std::string base_extkey_;                 //!< extkey base
+  std::string tweak_sum_;                   //!< extpubkey tweak sum
+  uint32_t number_ = 0;                     //!< number value
+  std::vector<DescriptorNode> child_node_;  //!< child nodes
+  std::map<std::string, DescriptorNode> tree_node_;  //!< scripttree nodes
+  std::string checksum_;                             //!< checksum
+  uint32_t depth_ = 0;                               //!< depth
+  uint32_t need_arg_num_ = 0;                        //!< need argument num
+  DescriptorNodeType node_type_;                     //!< node type
+  DescriptorScriptType script_type_;                 //!< node script type
+  DescriptorKeyType key_type_;                       //!< node key type
+  std::vector<AddressFormatData> addr_prefixes_;     //!< address prefixes
+  std::string parent_kind_;                          //!< parent kind
 
   /**
    * @brief analyze child node.
@@ -619,6 +710,10 @@ class CFD_CORE_EXPORT DescriptorNode {
    * @param[in] parent_name  parent node name
    */
   void AnalyzeAll(const std::string& parent_name);
+  /**
+   * @brief analyze script tree.
+   */
+  void AnalyzeScriptTree();
   /**
    * @brief analyze key node.
    */
