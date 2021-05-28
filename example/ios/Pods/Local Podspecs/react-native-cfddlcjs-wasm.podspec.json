@@ -1,0 +1,27 @@
+{
+  "name": "react-native-cfddlcjs-wasm",
+  "version": "0.0.6b",
+  "summary": "WebView wrapper to run cfddlcjs-wasm in React Native.",
+  "homepage": "https://github.com/atomicfinance/react-native-cfddlcjs-wasm#readme",
+  "license": "MIT",
+  "authors": "Steven Zhao <steven@atomic.finance> (https://github.com/zpv/)",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source": {
+    "git": "https://github.com/atomicfinance/react-native-cfddlcjs-wasm.git",
+    "tag": "0.0.6b"
+  },
+  "source_files": "ios/**/*.{h,m,mm,swift}",
+  "resource_bundles": {
+    "CFDDLC_WASM": [
+      "resources/*"
+    ]
+  },
+  "resources": "resources/**/*.{js,wasm}",
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  }
+}

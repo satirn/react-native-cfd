@@ -1,0 +1,41 @@
+{
+  "name": "react-native-cfddlc",
+  "version": "0.0.8",
+  "summary": "WebView wrapper to run cfddlcjs-wasm in React Native.",
+  "homepage": "https://github.com/atomicfinance/react-native-cfddlc#readme",
+  "license": "MIT",
+  "authors": "Steven Zhao <steven@atomic.finance> (https://github.com/zpv/)",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source": {
+    "git": "https://github.com/atomicfinance/react-native-cfddlc.git",
+    "tag": "0.0.8"
+  },
+  "source_files": "ios/**/*.{h,hpp,cpp,m,mm,swift}",
+  "vendored_libraries": [
+    "ios/lib/libcfd.a",
+    "ios/lib/libcfdcore.a",
+    "ios/lib/libcfddlc.a",
+    "ios/lib/libunivalue.a",
+    "ios/lib/libwally.a"
+  ],
+  "private_header_files": [
+    "ios/lib/**/*.{h}",
+    "ios/autogen/*.h",
+    "ios/**/*.hpp"
+  ],
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  },
+  "preserve_paths": "lib/**",
+  "pod_target_xcconfig": {
+    "HEADER_SEARCH_PATHS": "\"/Users/steven/src/atomicfinance/react-native-cfddlc/ios/lib\""
+  },
+  "xcconfig": {
+    "HEADER_SEARCH_PATHS": "\"${PODS_ROOT}/react-native-cfddlc/ios/lib\""
+  },
+  "libraries": "c++"
+}

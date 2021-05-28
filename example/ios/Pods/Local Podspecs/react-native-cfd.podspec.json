@@ -1,0 +1,53 @@
+{
+  "name": "react-native-cfd",
+  "version": "0.0.6",
+  "summary": "React Native module for cfd-dlc",
+  "homepage": "https://github.com/atomicfinance/react-native-cfd#readme",
+  "license": "MIT",
+  "authors": "Steven Zhao <steven@atomic.finance> (https://github.com/zpv/)",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source": {
+    "git": "https://github.com/atomicfinance/react-native-cfd.git",
+    "tag": "0.0.6"
+  },
+  "source_files": [
+    "ios/*.{h,hpp,cpp,m,mm,swift}",
+    "ios/cfd-js/src/**/*.{h,cpp}",
+    "ios/cfd-js/include/**/*.{h}"
+  ],
+  "vendored_libraries": [
+    "ios/lib/libcfd.a",
+    "ios/lib/libcfdcore.a",
+    "ios/lib/libunivalue.a",
+    "ios/lib/libwally.a"
+  ],
+  "private_header_files": [
+    "ios/lib/**/*.{h}",
+    "ios/**/*.hpp",
+    "ios/cfd-js/**/*.h"
+  ],
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  },
+  "preserve_paths": [
+    "lib/**",
+    "include/**"
+  ],
+  "pod_target_xcconfig": {
+    "HEADER_SEARCH_PATHS": [
+      "\"/Users/steven/src/atomicfinance/react-native-cfd/ios/lib\"",
+      "\"/Users/steven/src/atomicfinance/react-native-cfd/ios/cfd-js/include\""
+    ]
+  },
+  "xcconfig": {
+    "HEADER_SEARCH_PATHS": [
+      "\"${PODS_ROOT}/react-native-cfd/ios/lib\"",
+      "\"${PODS_ROOT}/react-native-cfd/ios/cfd-js/include\""
+    ]
+  },
+  "libraries": "c++"
+}

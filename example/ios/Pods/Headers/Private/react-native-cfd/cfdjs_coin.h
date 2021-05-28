@@ -1,0 +1,1 @@
+../../../../../../ios/cfd-js/src/cfdjs_coin.h

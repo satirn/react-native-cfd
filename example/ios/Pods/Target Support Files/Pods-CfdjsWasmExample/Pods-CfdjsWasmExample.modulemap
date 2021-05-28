@@ -1,0 +1,6 @@
+module Pods_RNCfdExample {
+  umbrella header "Pods-RNCfdExample-umbrella.h"
+
+  export *
+  module * { export * }
+}
