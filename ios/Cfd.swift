@@ -9,7 +9,7 @@ func handleCfdCall(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping 
     }
 }
 
-let queue = DispatchQueue(label: "cfd-queue", qos: .userInitiated, attributes: .concurrent)
+let queue = DispatchQueue(label: "cfd-queue", qos: .userInitiated)
 
 extension DispatchQueue {
     static func background(delay: Double = 0.0, background: (()->Void)? = nil, completion: (() -> Void)? = nil) {
