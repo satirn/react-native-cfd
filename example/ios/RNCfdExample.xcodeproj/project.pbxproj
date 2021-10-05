@@ -364,7 +364,7 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RNCfdExample/Pods-RNCfdExample-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -585,6 +585,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "RNCfdExample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -608,6 +609,7 @@
 				PRODUCT_NAME = RNCfdExample;
 				SWIFT_OBJC_BRIDGING_HEADER = "RNCfdExample-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
